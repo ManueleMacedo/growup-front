@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { UserStory } from '../../models/historia.model';
+import { UserStoryService } from '../../services/user-story.service';
 import { Router } from '@angular/router';
-import { UserStory } from '../../models/user-story.model';
 
 @Component({
   selector: 'app-backlog',
@@ -11,61 +12,71 @@ import { UserStory } from '../../models/user-story.model';
   templateUrl: './backlog.component.html',
   styleUrls: ['./backlog.component.css']
 })
-export class BacklogComponent {
+export class BacklogComponent implements OnInit {
 
+  historias: UserStory[] = [];
+  jiraKey: string = 'LUMI';
 
-  constructor(private router: Router) {}
+  constructor(
+    private userStoryService: UserStoryService,
+    private router: Router
+  ) { }
 
-  historias: UserStory[] = [
-    {
-      id: 1,
-      papel: 'usuário',
-      acao: 'fazer login no sistema',
-      beneficio: 'acessar minhas funcionalidades',
-      prioridade: 'ALTA',
-      estimativa: '4 tarefas',
-      editando: false
-    },
-    {
-      id: 2,
-      papel: 'gerente',
-      acao: 'visualizar relatórios de vendas',
-      beneficio: 'tomar decisões estratégicas',
-      prioridade: 'ALTA',
-      estimativa: '6 tarefas',
-      editando: false
-    },
-    {
-      id: 3,
-      papel: 'vendedor',
-      acao: 'registrar novas vendas',
-      beneficio: 'manter o estoque atualizado',
-      prioridade: 'MEDIA',
-      estimativa: '2 tarefas',
-      editando: false
-    },
-    {
-      id: 4,
-      papel: 'administrador',
-      acao: 'gerenciar usuários',
-      beneficio: 'garantir a segurança',
-      prioridade: 'MEDIA',
-      estimativa: '3 tarefas',
-      editando: false
-    }
-  ];
-
-  deletar(id: number) {
-    if(confirm('Tem certeza que deseja remover esta história?')) {
-      this.historias = this.historias.filter(h => h.id !== id);
-    }
+  ngOnInit(): void {
+    this.carregarHistorias();
   }
 
-  alternarEdicao(historia: UserStory) {
+  carregarHistorias(): void {
+    this.userStoryService.getHistoriasSalvas().subscribe({
+      next: (data) => {
+        this.historias = data;
+      },
+      error: (err) => {
+        console.error('Erro ao carregar histórias:', err);
+      }
+    });
+  }
+
+  alternarEdicao(historia: UserStory): void {
     historia.editando = !historia.editando;
+    if (!historia.editando) {
+      this.userStoryService.atualizarHistoria(historia).subscribe({
+        error: (err) => {
+          console.error('Falha ao atualizar história:', err);
+          alert('Erro ao salvar as alterações da história.');
+        }
+      });
+    }
   }
-  
-  avancar() {
+
+  deletar(id: number): void {
+    if (confirm('Tem certeza que deseja deletar esta história?')) {
+      this.userStoryService.deletarHistoria(id).subscribe({
+        next: () => {
+          this.carregarHistorias();
+        },
+        error: (err) => {
+          console.error('Falha ao deletar:', err);
+          alert('Erro ao deletar a história.');
+        }
+      });
+    }
+  }
+
+  enviarParaJira(historia: UserStory): void {
+    this.userStoryService.enviarParaJira(historia.id, this.jiraKey).subscribe({
+      next: (response) => {
+        alert('História enviada com sucesso para o Jira!');
+        this.carregarHistorias();
+      },
+      error: (err) => {
+        console.error('Falha ao enviar para o Jira:', err);
+        alert('Erro ao enviar para o Jira. Verifique o console e o Backend.');
+      }
+    });
+  }
+
+  navegarParaRoadmap(): void {
     this.router.navigate(['/roadmap']);
   }
 }

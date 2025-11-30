@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UserStory } from '../../models/user-story.model';
+import { UserStory } from '../../models/historia.model';
+import { UserStoryService } from '../../services/user-story.service';
+import { Router } from '@angular/router';
 
-// Criando uma interface simples só para essa tela (pode ficar aqui mesmo)
 interface Sprint {
   titulo: string;
   periodo: string;
@@ -17,51 +18,71 @@ interface Sprint {
   templateUrl: './roadmap.component.html',
   styleUrls: ['./roadmap.component.css']
 })
-export class RoadmapComponent {
+export class RoadmapComponent implements OnInit {
 
-  jiraKey: string = 'GROWUP'; // Valor inicial do input
-  statusSincronizacao: 'PARADO' | 'CARREGANDO' | 'SUCESSO' = 'PARADO';
-  
-  // Dados Mockados das Colunas
-  sprints: Sprint[] = [
-    {
-      titulo: 'Semana 1',
-      periodo: '05/11 - 12/11',
-      cards: [
-        { id: 1, papel: 'usuário', acao: 'fazer login', beneficio: 'acessar conta', prioridade: 'ALTA', estimativa: '4h' },
-        { id: 3, papel: 'vendedor', acao: 'registrar vendas', beneficio: 'atualizar estoque', prioridade: 'MEDIA', estimativa: '2h' }
-      ]
-    },
-    {
-      titulo: 'Semana 2',
-      periodo: '13/11 - 20/11',
-      cards: [
-        { id: 2, papel: 'gerente', acao: 'ver relatórios', beneficio: 'tomar decisões', prioridade: 'ALTA', estimativa: '6h' }
-      ]
-    },
-    {
-      titulo: 'Overflow',
-      periodo: 'Futuro',
-      cards: [
-        { id: 4, papel: 'admin', acao: 'gerenciar users', beneficio: 'segurança', prioridade: 'BAIXA', estimativa: '3h' }
-      ]
-    }
-  ];
+  jiraKey: string = 'LUMI';
+  statusSincronizacao: string = 'PARADO';
+  sprints: Sprint[] = [];
+  totalSincronizado: number = 0;
 
-  // Simula a chamada para a API do Jira
-  sincronizarComJira() {
-    if (!this.jiraKey) return;
+  constructor(
+    private userStoryService: UserStoryService,
+    private router: Router
+  ) { }
 
+  ngOnInit(): void {
+    this.carregarDadosRoadmap();
+  }
+
+  carregarDadosRoadmap(): void {
+    this.userStoryService.getHistoriasSalvas().subscribe({
+      next: (historias) => {
+        const storiesProntasParaRoadmap = historias.filter(h => h.prioridade && h.estimativa);
+        this.sprints = this.organizarRoadmapMock(storiesProntasParaRoadmap);
+      },
+      error: (err) => {
+        console.error('Erro ao carregar histórias para o roadmap:', err);
+      }
+    });
+  }
+
+  organizarRoadmapMock(historias: UserStory[]): Sprint[] {
+    const sprintsCriadas: Sprint[] = [
+      { titulo: 'Sprint 1', periodo: 'Semanas 1-2', cards: [] },
+      { titulo: 'Sprint 2', periodo: 'Semanas 3-4', cards: [] },
+      { titulo: 'Sprint 3', periodo: 'Semanas 5-6', cards: [] }
+    ];
+
+    historias.forEach((story, index) => {
+      sprintsCriadas[index % 3].cards.push(story);
+    });
+
+    return sprintsCriadas;
+  }
+
+  sincronizarComJira(): void {
     this.statusSincronizacao = 'CARREGANDO';
+    this.totalSincronizado = 0;
+    
+    let historiasParaSincronizar: UserStory[] = [];
+    this.sprints.forEach(s => historiasParaSincronizar.push(...s.cards));
 
-    // Espera 2 segundos para fingir que está enviando
-    setTimeout(() => {
-      this.statusSincronizacao = 'SUCESSO';
-      
-      // Opcional: Voltar ao normal depois de 3 segundos
-      setTimeout(() => {
-        this.statusSincronizacao = 'PARADO';
-      }, 4000);
-    }, 2000);
+    historiasParaSincronizar.forEach((historia, index) => {
+      if (historia.jiraIssueKey === null || historia.jiraIssueKey === undefined) {
+        this.userStoryService.enviarParaJira(historia.id, this.jiraKey).subscribe({
+          next: () => {
+            this.totalSincronizado++;
+            if (index === historiasParaSincronizar.length - 1) {
+              this.statusSincronizacao = 'SUCESSO';
+              this.carregarDadosRoadmap(); 
+            }
+          },
+          error: (err) => {
+            console.error(`Erro ao sincronizar história ID ${historia.id}:`, err);
+            this.statusSincronizacao = 'ERRO';
+          }
+        });
+      }
+    });
   }
 }

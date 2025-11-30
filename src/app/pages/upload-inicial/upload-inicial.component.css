@@ -1,117 +1,254 @@
+:host {
+    display: block;
+    padding: 2rem;
+    font-family: 'Inter', sans-serif;
+    background-color: #f7f9fc;
+    min-height: 100vh;
+}
+
 .container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-family: 'Arial', sans-serif;
-  color: #333;
+    max-width: 700px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 3rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
 
-header {
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-header h1 {
-  font-size: 1.8rem;
-  margin-bottom: 0.5rem;
-}
-
-header .subtitle {
-  color: #666;
-  font-size: 0.9rem;
+.header {
+    text-align: center;
+    margin-bottom: 2.5rem;
 }
 
 .logo-placeholder {
-  text-align: left;
-  font-weight: bold;
-  color: #4A90E2;
-  margin-bottom: 1rem;
+    font-weight: 700;
+    color: #007bff;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
 }
 
-/* Área de Upload */
-.upload-card {
-  background: #F8F9FA;
-  border-radius: 8px;
-  padding: 2rem;
-  text-align: center;
-  margin-bottom: 2rem;
-  border: 1px dashed #ccc;
+.logo-icon {
+    font-size: 1.5rem;
+    margin-right: 8px;
 }
 
-.drop-zone, .file-loaded {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
+.header h1 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 0.5rem;
 }
 
-.upload-card .icon {
-  font-size: 2rem;
-  color: #4A90E2;
+.subtitle {
+    color: #6c757d;
+    font-size: 1rem;
+    max-width: 500px;
+    margin: 0 auto;
 }
 
-.upload-card .icon-file {
-  font-size: 3rem;
-  color: #666;
+.upload-area {
+    margin-bottom: 2rem;
 }
 
-/* Inputs */
-.form-section {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 2rem;
+.file-card {
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 120px;
+    box-sizing: border-box;
 }
 
-.form-section label {
-  font-weight: bold;
-  font-size: 0.9rem;
-}
-  
-.form-section input, 
-.form-section textarea {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  width: 100%;
-  box-sizing: border-box;
-}
-  
-.form-section textarea {
-  height: 80px;
-  resize: none;
+.file-card.placeholder {
+    background: #e9ecef;
+    border: 2px dashed #adb5bd;
+    cursor: pointer;
+    flex-direction: column;
+    justify-content: center;
+    color: #495057;
 }
 
-/* Botões */
+.file-card.placeholder:hover {
+    background: #dee2e6;
+    border-color: #6c757d;
+}
+
+.drop-zone svg {
+    width: 32px;
+    height: 32px;
+    color: #007bff;
+}
+
+.drop-zone span {
+    font-weight: 500;
+}
+
+.file-card.file-loaded {
+    background: #e6f7ff;
+    border: 1px solid #b3d9ff;
+    justify-content: space-between;
+}
+
+.file-icon svg {
+    width: 40px;
+    height: 40px;
+    color: #007bff;
+    flex-shrink: 0;
+}
+
+.file-details {
+    flex-grow: 1;
+    text-align: left;
+}
+
+.file-details h3 {
+    margin: 0 0 4px 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-details p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.form-area {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding-top: 1rem;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: #495057;
+}
+ 
+.input-group input, 
+.input-group textarea {
+    padding: 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+    width: 100%;
+}
+ 
+.input-group input:focus, 
+.input-group textarea:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+.input-group textarea {
+    height: 100px;
+    resize: vertical;
+}
+
 .btn-primary {
-  background-color: #4A90E2;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 4px;
-  width: 100%;
-  font-weight: bold;
-  cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 6px;
+    width: 100%;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s, box-shadow 0.2s;
 }
 
 .btn-primary:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
+    background-color: #adb5bd;
+    cursor: not-allowed;
+    box-shadow: none;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: #357ABD;
+    background-color: #0056b3;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
 }
 
 .btn-secondary {
-  background-color: #E0E0E0;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    color: #495057;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
 }
 
 .btn-secondary:hover {
-  background-color: #d5d5d5;
+    background-color: #e9ecef;
+}
+
+.message {
+    padding: 1rem;
+    border-radius: 6px;
+    margin-top: 1.5rem;
+    font-weight: 500;
+}
+
+.message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #ffffff;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+    margin-right: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1.5rem;
+    }
+    
+    .header h1 {
+        font-size: 1.6rem;
+    }
+    
+    .file-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .file-card.file-loaded {
+        gap: 0.5rem;
+    }
 }

@@ -1,48 +1,71 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { UserStory } from '../../models/historia.model';
+import { UserStoryService } from '../../services/user-story.service';
 import { Router } from '@angular/router';
+import { HttpClientModule } from '@angular/common/http'; 
+
+type StatusUpload = 'PARADO' | 'CARREGANDO' | 'SUCESSO' | 'ERRO';
 
 @Component({
-  selector: 'app-upload-inicial',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './upload-inicial.component.html',
-  styleUrls: ['./upload-inicial.component.css']
+  selector: 'app-upload-inicial',
+  standalone: true,
+  imports: [CommonModule, FormsModule, HttpClientModule], 
+  templateUrl: './upload-inicial.component.html',
+  styleUrls: ['./upload-inicial.component.css']
 })
-export class UploadInicialComponent {
-  
-  nomeProjeto: string = '';
-  contextoAdicional: string = '';
-  arquivoSelecionado: File | null = null;
+export class UploadInicialComponent implements OnInit {
+    
+    nomeDoProjeto: string = ''; 
+    contextoAdicional: string = ''; 
+    arquivoSelecionado: File | null = null; 
+    status: StatusUpload = 'PARADO'; 
+    
+    prompt: string = ''; 
 
-  constructor(private router: Router) {}
+    constructor(
+        private userStoryService: UserStoryService,
+        private router: Router
+    ) { }
 
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      this.arquivoSelecionado = file;
-    }
-  }
+    ngOnInit(): void {
+        
+    }
 
-  onDrop(event: DragEvent) {
-    event.preventDefault();
-    event.stopPropagation();
-    if (event.dataTransfer && event.dataTransfer.files.length > 0) {
-      this.arquivoSelecionado = event.dataTransfer.files[0];
-    }
-  }
+    onFileSelected(event: any): void {
+        const file = event.target.files[0];
+        if (file) {
+            this.arquivoSelecionado = file;
+        } else {
+            this.arquivoSelecionado = null;
+        }
+    }
 
-  onDragOver(event: DragEvent) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
+    gerarEAvancar(): void {
+        if (!this.arquivoSelecionado || this.status === 'CARREGANDO') {
+            alert('Por favor, selecione um arquivo para continuar.');
+            return;
+        }
 
-  removerArquivo() {
-    this.arquivoSelecionado = null;
-  }
+        this.status = 'CARREGANDO';
 
-  gerarRoadmap() {
-    this.router.navigate(['/backlog']);
-  }
+        this.prompt = `Projeto: ${this.nomeDoProjeto}. Contexto: ${this.contextoAdicional}.`;
+
+        const formData = new FormData();
+        formData.append('prompt', this.prompt); 
+        formData.append('file', this.arquivoSelecionado, this.arquivoSelecionado.name); 
+
+        this.userStoryService.gerarEProcessarHistorias(formData).subscribe({
+            next: (historias) => {
+                this.status = 'SUCESSO';
+                this.router.navigate(['/backlog']);
+            },
+            error: (err) => {
+                this.status = 'ERRO';
+                console.error('Erro ao processar upload:', err);
+                alert('Falha ao processar e salvar histórias. Verifique o console.');
+            }
+        });
+    }
 }

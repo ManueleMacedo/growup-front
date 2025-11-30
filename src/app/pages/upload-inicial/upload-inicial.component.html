@@ -1,53 +1,42 @@
 <div class="container">
-  
-  <header class="text-center">
-    <div class="logo-placeholder">🔵 Logo</div>
+    <div class="logo-placeholder">Logo</div>
+    
     <h1>Gerador de Plano de Projeto com IA</h1>
     <p class="subtitle">Carregue seus requisitos e deixe a IA criar histórias de usuário e roadmap automaticamente</p>
-  </header>
 
-  <div class="upload-card">
-    
-    <div 
-      class="drop-zone" 
-      (drop)="onDrop($event)" 
-      (dragover)="onDragOver($event)"
-      *ngIf="!arquivoSelecionado">
-      
-      <div class="icon">⬆️</div>
-      <h3>Arraste e solte seu documento aqui</h3>
-      <p>ou clique para selecionar (PDF, DOCX, DOC, TXT - máx. 20MB)</p>
-      
-      <input type="file" #fileInput (change)="onFileSelected($event)" hidden accept=".pdf,.doc,.docx,.txt">
-      <button class="btn-secondary" (click)="fileInput.click()">Selecionar Arquivo</button>
+    <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;">
+
+    <div class="upload-area">
+        <div class="file-card" *ngIf="arquivoSelecionado">
+            
+            <div class="file-icon"></div>
+            
+            <div class="file-details">
+                <h3>{{ arquivoSelecionado.name }}</h3>
+                <p>{{ (arquivoSelecionado.size / 1024).toFixed(2) }} KB</p>
+                <button class="btn-secondary" (click)="fileInput.click()">Alterar Arquivo</button> 
+            </div>
+        </div>
+        
+        <div class="file-card placeholder" *ngIf="!arquivoSelecionado" (click)="fileInput.click()">
+            <span>Arraste ou clique para enviar o arquivo de requisitos</span>
+        </div>
     </div>
 
-    <div class="file-loaded" *ngIf="arquivoSelecionado">
-      <div class="icon-file">📄</div>
-      <div class="file-info">
-        <h3>{{ arquivoSelecionado?.name }}</h3>
-        <p>{{ (arquivoSelecionado?.size! / 1024).toFixed(2) }} KB</p>
-      </div>
-      <button class="btn-secondary" (click)="removerArquivo()">Alterar Arquivo</button>
+    <div class="form-area">
+        <label for="projeto-nome">Nome do Projeto</label>
+        <input id="projeto-nome" type="text" [(ngModel)]="nomeDoProjeto" placeholder="Ex: Sistema de Vendas">
+        
+        <label for="contexto-adicional">Contexto Adicional (opcional)</label>
+        <textarea id="contexto-adicional" [(ngModel)]="contextoAdicional" placeholder="Adicione contexto adicional, objetivos..."></textarea>
+        
+        <button 
+            class="btn-primary" 
+            (click)="gerarEAvancar()"
+            [disabled]="!arquivoSelecionado || status === 'CARREGANDO'"
+        >
+            <span *ngIf="status === 'PARADO' || status === 'SUCESSO'">GERAR HISTÓRIAS E ROADMAP</span>
+            <span *ngIf="status === 'CARREGANDO'">GERANDO... AGUARDE</span>
+        </button>
     </div>
-
-  </div>
-
-  <div class="form-section">
-    <label>Nome do Projeto</label>
-    <input type="text" [(ngModel)]="nomeProjeto" placeholder="Ex: Sistema de gestão financeira">
-
-    <label>Contexto Adicional (opcional)</label>
-    <textarea [(ngModel)]="contextoAdicional" placeholder="Adicione contexto adicional, objetivos..."></textarea>
-  </div>
-
-  <div class="actions">
-    <button 
-      class="btn-primary" 
-      (click)="gerarRoadmap()"
-      [disabled]="!nomeProjeto || !arquivoSelecionado">
-      GERAR HISTÓRIAS E ROADMAP
-    </button>
-  </div>
-
 </div>
